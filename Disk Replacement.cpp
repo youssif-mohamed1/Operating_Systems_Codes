@@ -58,7 +58,7 @@ void SCAN(int val[], int n, int head, int maxi) {
         cout << head << " ";
         tot += move;
     }
-
+    tot += abs(maxi - left[0]);
     for (int i = l - 1; i >= 0; i--) {
         int move = abs(head - left[i]);
         head = left[i];
@@ -83,7 +83,7 @@ void CSCAN(int val[], int n, int head, int maxi) {
 
     sort(left, left + l);
     sort(right, right + r);
-
+    tot += maxi;
     cout << head << " ";
     for (int i = 0; i < r; i++) {
         int move = abs(head - right[i]);
