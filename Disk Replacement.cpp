@@ -1,267 +1,154 @@
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
-void FCFS(int values[], int size, int head) {
-    int totalSteps = 0;
-    cout << "-----FCFS-----\n";
-    cout << "Access Steps:\n";
-    cout << head << " -> ";
-    totalSteps += abs(values[0] - head);
-
-    for (int i = 0; i < size - 1; ++i) {
-        cout << values[i] << " -> ";
-        totalSteps += abs(values[i + 1] - values[i]);
+void FCFS(int val[], int n, int head) {
+    int tot = 0;
+    cout << head << " ";
+    for (int i = 0; i < n; ++i) {
+        tot += abs(val[i] - head);
+        head = val[i];
+        cout << head << " ";
     }
-    cout << values[size - 1] << "\n";
-
-    cout << "Movement of each step:\n";
-    cout << "0";
-    for (int i = 0; i < size; ++i) {
-        int movement = abs(values[i] - head);
-        cout << " + " << movement;
-        head = values[i];
-    }
-    cout << " = " << totalSteps << "\n";
+    cout << "total: " << tot << "\n";
 }
 
-void SSTF(int values[], int size, int head) {
-    cout << "-----SSTF-----\n";
-    cout << "Access Steps:\n";
-
-    int totalSteps = 0;
-    int current = head;
-    int steps[size - 1];
-
-    int valuesCopy[size];
-    for (int i = 0; i < size; ++i) {
-        valuesCopy[i] = values[i];
+void SSTF(int val[], int n, int head) {
+    int tot = 0, current = head, steps[n - 1], temp[n];
+    for (int i = 0; i < n; ++i) {
+        temp[i] = val[i];
     }
-
-    for (int i = 0; i < size; ++i) {
-        int minDistance = 99999999;
-        int index = -1;
-
-        for (int j = 0; j < size; ++j) {
-            if (valuesCopy[j] != -1) {
-                int distance = abs(valuesCopy[j] - current);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    index = j;
+    cout << head << " ";
+    for (int i = 0; i < n; ++i) {
+        int mini = 1e9, ind = -1;
+        for (int j = 0; j < n; ++j) {
+            if (temp[j] != -1) {
+                int dist = abs(temp[j] - current);
+                if (dist < mini) {
+                    mini = dist;
+                    ind = j;
                 }
             }
         }
-
-        totalSteps += minDistance;
-        steps[i] = minDistance;
-        cout << current << " -> ";
-        current = valuesCopy[index];
-        valuesCopy[index] = -1;
+        tot += mini;
+        head = temp[ind];
+        cout << head << " ";
+        temp[ind] = -1;
     }
-    cout << current << "\n";
-
-    cout << "Movement of each step:\n";
-    cout << "0";
-    for (int i = 0; i < size - 1; ++i) {
-        cout << " + " << steps[i];
-    }
-    cout << " = " << totalSteps << "\n";
+    cout << "total: " << tot << "\n";
 }
 
-void SCAN(int values[], int size, int head, int maxTrack) {
-    int left[size + 1], right[size + 1], result[size + 2];
-    int lc = 0, rc = 0, resc = 0;
-    int totalSteps = 0, curr;
-    int steps[size + 2];
-
-    result[resc] = head;
-    steps[resc++] = 0;
-
-    right[rc++] = maxTrack;
-
-    for (int i = 0; i < size; i++) {
-        if (values[i] < head)
-            left[lc++] = values[i];
+void SCAN(int val[], int n, int head, int maxi) {
+    int left[n + 1], right[n + 1];
+    int l = 0, r = 0, tot = 0;
+    right[r++] = maxi;
+    for (int i = 0; i < n; i++) {
+        if (val[i] <= head)
+            left[l++] = val[i];
         else
-            right[rc++] = values[i];
+            right[r++] = val[i];
+    }
+    
+    sort(left, left + l);
+    sort(right, right + r);
+
+    cout << head << " ";
+    for (int i = 0; i < r; i++) {
+        int move = abs(head - right[i]);
+        head = right[i];
+        cout << head << " ";
+        tot += move;
     }
 
-    sort(left, left + lc);
-    sort(right, right + rc);
-
-    int phead = head;
-
-    for (int i = 0; i < rc; i++) {
-        curr = right[i];
-        result[resc] = curr;
-        steps[resc] = abs(curr - phead);
-        totalSteps += steps[resc];
-        phead = curr;
-        resc++;
+    for (int i = l - 1; i >= 0; i--) {
+        int move = abs(head - left[i]);
+        head = left[i];
+        cout << head << " ";
+        tot += move;
     }
-
-    for (int i = lc - 1; i >= 0; i--) {
-        curr = left[i];
-        result[resc] = curr;
-        steps[resc] = abs(curr - phead);
-        totalSteps += steps[resc];
-        phead = curr;
-        resc++;
-    }
-
-    cout << "-----SCAN-----\n";
-    cout << "Access Steps:\n";
-    cout << result[0];
-    for (int i = 1; i < resc; i++) {
-        cout << " -> " << result[i];
-    }
-    cout << "\nMovement of each step:\n";
-    cout << steps[0];
-    for (int i = 1; i < resc; i++) {
-        cout << " + " << steps[i];
-    }
-    cout << " = " << totalSteps << "\n";
+    cout << "total: " << tot << "\n";
 }
 
-void CSCAN(int values[], int size, int head, int maxTrack) {
-    int left[size + 1], right[size + 1], result[size + 2];
-    int lc = 0, rc = 0, resc = 0;
-    int totalSteps = 0, curr;
-    int steps[size + 2];
-
-    result[resc] = head;
-    steps[resc++] = 0;
-
-    left[lc++] = 0;
-    right[rc++] = maxTrack;
-
-    for (int i = 0; i < size; i++) {
-        if (values[i] < head)
-            left[lc++] = values[i];
+void CSCAN(int val[], int n, int head, int maxi) {
+    int left[n + 1], right[n + 1];
+    int l = 0, r = 0;
+    int tot = 0;
+    left[l++] = 0;
+    right[r++] = maxi;
+    for (int i = 0; i < n; i++) {
+        if (val[i] <= head)
+            left[l++] = val[i];
         else
-            right[rc++] = values[i];
+            right[r++] = val[i];
     }
 
-    sort(left, left + lc);
-    sort(right, right + rc);
+    sort(left, left + l);
+    sort(right, right + r);
 
-    int phead = head;
+    cout << head << " ";
+    for (int i = 0; i < r; i++) {
+        int move = abs(head - right[i]);
+        tot += move;
+        head = right[i];
+        cout << head << " ";
+        }
 
-    for (int i = 0; i < rc; i++) {
-        curr = right[i];
-        result[resc] = curr;
-        steps[resc] = abs(curr - phead);
-        totalSteps += steps[resc];
-        phead = curr;
-        resc++;
+    for (int i = 0; i < l; i++) {
+        int move = abs(head - left[i]);
+        tot += move;
+        head = left[i];
+        cout << head << " ";
     }
-
-    for (int i = 0; i < lc; i++) {
-        curr = left[i];
-        result[resc] = curr;
-        steps[resc] = abs(curr - phead);
-        totalSteps += steps[resc];
-        phead = curr;
-        resc++;
-    }
-
-    cout << "-----C-SCAN-----\n";
-    cout << "Access Steps:\n";
-    cout << result[0];
-    for (int i = 1; i < resc; i++) {
-        cout << " -> " << result[i];
-    }
-    cout << "\nMovement of each step:\n";
-    cout << steps[0];
-    for (int i = 1; i < resc; i++) {
-        cout << " + " << steps[i];
-    }
-    cout << " = " << totalSteps << "\n";
+    cout << "total: " << tot << "\n";
 }
 
 
 
-void CLOOK(int values[], int size, int head) {
-    int left[size + 1], right[size + 1], result[size + 2];
-    int lc = 0, rc = 0, resc = 0;
-    int totalSteps = 0, curr;
-    int steps[size + 2];
-
-    result[resc] = head;
-    steps[resc++] = 0;
-
-    for (int i = 0; i < size; i++) {
-        if (values[i] < head)
-            left[lc++] = values[i];
+void CLOOK(int val[], int n, int head) {
+    int left[n + 1], right[n + 1];
+    int l = 0, r = 0;
+    int tot = 0;
+    for (int i = 0; i < n; i++) {
+        if (val[i] <= head)
+            left[l++] = val[i];
         else
-            right[rc++] = values[i];
+            right[r++] = val[i];
     }
 
-    sort(left, left + lc);
-    sort(right, right + rc);
+    sort(left, left + l);
+    sort(right, right + r);
 
-    int phead = head;
+    cout << head << " ";
+    for (int i = 0; i < r; i++) {
+        int move = abs(head - right[i]);
+        tot += move;
+        head = right[i];
+        cout << head << " ";
+        }
 
-    for (int i = 0; i < rc; i++) {
-        curr = right[i];
-        result[resc] = curr;
-        steps[resc] = abs(curr - phead);
-        totalSteps += steps[resc];
-        phead = curr;
-        resc++;
+    for (int i = 0; i < l; i++) {
+        int move = abs(head - left[i]);
+        tot += move;
+        head = left[i];
+        cout << head << " ";
     }
-
-    for (int i = 0; i < lc; i++) {
-        curr = left[i];
-        result[resc] = curr;
-        steps[resc] = abs(curr - phead);
-        totalSteps += steps[resc];
-        phead = curr;
-        resc++;
-    }
-
-    cout << "-----C-LOOK-----\n";
-    cout << "Access Steps:\n";
-    cout << result[0];
-    for (int i = 1; i < resc; i++) {
-        cout << " -> " << result[i];
-    }
-    cout << "\nMovement of each step:\n";
-    cout << steps[0];
-    for (int i = 1; i < resc; i++) {
-        cout << " + " << steps[i];
-    }
-    cout << " = " << totalSteps << "\n";
+    cout << "total: " << tot << "\n";
 }
 
 
 int main() {
-    ifstream file("mydata.txt");
-
-    if (!file.is_open()) {
-        cout << "Failed to open the file: " << strerror(errno) << endl;
-        return 1;
-    }
-
     const int MAX_SIZE = 100;
-    int values[MAX_SIZE];
+    int val[MAX_SIZE];
     int value;
-    int size = 0;
-
-    while (file >> value && size < MAX_SIZE) {
-        values[size] = value;
-        size++;
-    }
-
-    file.close();
+    int n = 0;
 
     int head;
     cout << "Enter the Head value :";
     cin >> head;
 
-    //FCFS(values, size, head);
-    SSTF(values, size, head);
-    //SCAN(values, size, head, 199);
-    //CSCAN(values, size, head, 199);
-    //CLOOK(values, size, head);
+    //FCFS(val, n, head);
+    SSTF(val, n, head);
+    //SCAN(val, n, head, 199);
+    //CSCAN(val, n, head, 199);
+    //CLOOK(val, n, head);
     return 0;
 }
